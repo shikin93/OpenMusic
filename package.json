@@ -1,0 +1,24 @@
+{
+  "name": "OpenMusic-back-end",
+  "version": "1.0.0",
+  "description": "OpenMusic-back-end",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint ./src",
+    "start-dev": "nodemon ./src/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@hapi/hapi": "^20.1.5",
+    "dotenv": "^10.0.0",
+    "nanoid": "^3.1.23"
+  },
+  "devDependencies": {
+    "eslint": "^7.30.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.23.4",
+    "nodemon": "^2.0.9"
+  }
+}
