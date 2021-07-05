@@ -10,6 +10,7 @@
   },
   "rules": {
     "no-console": "off",
+    "newline-per-chained-call": "off",
     "object-curly-newline": [
       "error",
       {

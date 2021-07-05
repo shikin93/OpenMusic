@@ -2,6 +2,7 @@ const Hapi = require('@hapi/hapi');
 const MusicServices = require('./services/inMemory/MusicServices');
 const songs = require('./api/songs');
 const CLientError = require('./exceptions/ClientError');
+const MusicValidator = require('./validator/music');
 
 require('dotenv').config();
 
@@ -38,6 +39,7 @@ const init = async () => {
     plugin: songs,
     options: {
       service: musicServices,
+      validator: MusicValidator,
     },
   });
 
