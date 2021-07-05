@@ -12,13 +12,13 @@ class UsersService {
   async addUsers({ username, password, fullname }) {
     await this.verifyNewUsername(username);
     const id = `user-${nanoid(16)}`;
-    const hashedPass = await bcrypt.hash(password, 10);
+    const hashedPass = await bcrypt.hash(password, 5);
     const query = {
       text: 'INSERT INTO users VALUES($1, $2, $3, $4) RETURNING id',
       values: [id, username, hashedPass, fullname],
     };
     const result = await this._pool.query(query);
-    if (!result.rowCount) {
+    if (!result.rows.length) {
       throw new InvariantError('User gagal ditambahkan');
     }
     return result.rows[0].id;
@@ -41,7 +41,7 @@ class UsersService {
       values: [userId],
     };
     const result = await this._pool.query(query);
-    if (!result.rowCount) {
+    if (!result.rows.length) {
       throw new NotFoundError('User tidak ditemukan');
     }
     return result.rows[0];
