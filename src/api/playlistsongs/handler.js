@@ -7,6 +7,7 @@ class PlaylistsongsHandler {
     this._validator = validator;
 
     this.postPlaylistsongsHandler = this.postPlaylistsongsHandler.bind(this);
+    this.getPlaylistsongsHandler = this.getPlaylistsongsHandler.bind(this);
   }
 
   async postPlaylistsongsHandler(req, h) {
@@ -28,13 +29,13 @@ class PlaylistsongsHandler {
       });
       response.code(201);
       return response;
-    } catch (error) {
-      if (error instanceof CLientError) {
+    } catch (err) {
+      if (err instanceof CLientError) {
         const response = h.response({
           status: 'fail',
-          message: error.message,
+          message: err.message,
         });
-        response.code(error.statusCode);
+        response.code(err.statusCode);
         return response;
       }
 
@@ -44,7 +45,44 @@ class PlaylistsongsHandler {
         message: 'Maaf, terjadi kegagalan pada server kami.',
       });
       response.code(500);
-      console.error(error);
+      console.error(err);
+      return response;
+    }
+  }
+
+  async getPlaylistsongsHandler(req, h) {
+    try {
+      const { playlistId } = req.params;
+      const { id: credentialId } = req.auth.credentials;
+      await this._playlistsService.verifyPlaylistAccess(playlistId, credentialId);
+      const songs = await this._playlistsongsService.getPlaylistsongs(credentialId);
+      return {
+        status: 'success',
+        data: {
+          songs: songs.map((s) => ({
+            id: s.id,
+            title: s.title,
+            performer: s.performer,
+          })),
+        },
+      };
+    } catch (err) {
+      if (err instanceof CLientError) {
+        const response = h.response({
+          status: 'fail',
+          message: err.message,
+        });
+        response.code(err.statusCode);
+        return response;
+      }
+
+      // Server ERROR!
+      const response = h.response({
+        status: 'error',
+        message: 'Maaf, terjadi kegagalan pada server kami.',
+      });
+      response.code(500);
+      console.error(err);
       return response;
     }
   }

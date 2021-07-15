@@ -21,6 +21,15 @@ class PlaylistsongsService {
     return result.rows[0].id;
   }
 
+  async getPlaylistsongs(owner) {
+    const query = {
+      text: 'SELECT music.id, music.title, music.performer FROM music LEFT JOIN playlistsongs ON playlistsongs.song_id = music.id LEFT JOIN playlists ON playlists.id = playlistsongs.playlist_id WHERE playlists.owner = $1',
+      values: [owner],
+    };
+    const result = await this._pool.query(query);
+    return result.rows;
+  }
+
   async verifyPlaylistsongs(playlistId, songId) {
     const query = {
       text: 'SELECT * FROM playlistsongs WHERE playlist_id = $1 AND song_id = $2',
