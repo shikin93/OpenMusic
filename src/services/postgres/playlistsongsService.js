@@ -16,7 +16,7 @@ class PlaylistsongsService {
     const result = await this._pool.query(query);
 
     if (!result.rowCount) {
-      throw new InvariantError('Lagu gagal ditambahkan ke playlists');
+      throw new InvariantError('Lagu gagal ditambahkan ke playlists, lagu tidak ditemukan');
     }
     return result.rows[0].id;
   }
@@ -28,6 +28,18 @@ class PlaylistsongsService {
     };
     const result = await this._pool.query(query);
     return result.rows;
+  }
+
+  async deleteSongInPlaylists(playlistId, songId) {
+    const query = {
+      text: 'DELETE FROM playlistsongs WHERE playlist_id = $1 AND song_id = $2 RETURNING id',
+      values: [playlistId, songId],
+    };
+
+    const result = await this._pool.query(query);
+    if (!result.rowCount) {
+      throw new InvariantError('Lagu gagal dihapus dari playlist, lagu tidak ditemukan');
+    }
   }
 
   async verifyPlaylistsongs(playlistId, songId) {

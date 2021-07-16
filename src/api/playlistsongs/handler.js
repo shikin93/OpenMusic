@@ -8,6 +8,7 @@ class PlaylistsongsHandler {
 
     this.postPlaylistsongsHandler = this.postPlaylistsongsHandler.bind(this);
     this.getPlaylistsongsHandler = this.getPlaylistsongsHandler.bind(this);
+    this.deleteSongInPlaylistsHandler = this.deleteSongInPlaylistsHandler.bind(this);
   }
 
   async postPlaylistsongsHandler(req, h) {
@@ -65,6 +66,40 @@ class PlaylistsongsHandler {
             performer: s.performer,
           })),
         },
+      };
+    } catch (err) {
+      if (err instanceof CLientError) {
+        const response = h.response({
+          status: 'fail',
+          message: err.message,
+        });
+        response.code(err.statusCode);
+        return response;
+      }
+
+      // Server ERROR!
+      const response = h.response({
+        status: 'error',
+        message: 'Maaf, terjadi kegagalan pada server kami.',
+      });
+      response.code(500);
+      console.error(err);
+      return response;
+    }
+  }
+
+  async deleteSongInPlaylistsHandler(req, h) {
+    try {
+      this._validator.validatePlaylistsongsPayload(req.payload);
+      const { id: credentialId } = req.auth.credentials;
+      const { playlistId } = req.params;
+      const { songId } = req.payload;
+
+      await this._playlistsService.verifyPlaylistOwner(playlistId, credentialId);
+      await this._playlistsongsService.deleteSongInPlaylists(playlistId, songId);
+      return {
+        status: 'success',
+        message: 'Lagu berhasil dihapus dari playlist',
       };
     } catch (err) {
       if (err instanceof CLientError) {
