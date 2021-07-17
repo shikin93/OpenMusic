@@ -64,6 +64,18 @@ class PlaylistsService {
     const result = await this._pool.query(query);
     return result.rows;
   }
+
+  async deletePlaylist(playlistId) {
+    const query = {
+      text: 'DELETE FROM playlists WHERE id = $1 RETURNING id',
+      values: [playlistId],
+    };
+
+    const result = await this._pool.query(query);
+    if (!result.rowCount) {
+      throw new InvariantError('Playlist gagal dihapus');
+    }
+  }
 }
 
 module.exports = PlaylistsService;
