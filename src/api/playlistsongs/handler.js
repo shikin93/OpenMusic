@@ -95,7 +95,7 @@ class PlaylistsongsHandler {
       const { playlistId } = req.params;
       const { songId } = req.payload;
 
-      await this._playlistsService.verifyPlaylistOwner(playlistId, credentialId);
+      await this._playlistsService.verifyPlaylistAccess(playlistId, credentialId);
       await this._playlistsongsService.deleteSongInPlaylists(playlistId, songId);
       return {
         status: 'success',
