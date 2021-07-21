@@ -1,24 +1,24 @@
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const InvariantError = require('../../exceptions/InvariantError');
-const NotFoundError = require('../../exceptions/NotFoundError');
 const AuthorizationError = require('../../exceptions/AuthorizationError');
+const NotFoundError = require('../../exceptions/NotFoundError');
 
 class PlaylistsService {
-  constructor(playlistsongsService) {
+  constructor(collaborationsService) {
     this._pool = new Pool();
-    this._playlistsongsService = playlistsongsService;
+    this._collaborationsService = collaborationsService;
   }
 
-  async verifyPlaylistAccess(playlistId, id) {
+  async verifyPlaylistAccess(playlistId, userId) {
     try {
-      await this.verifyPlaylistOwner(playlistId, id);
+      await this.verifyPlaylistOwner(playlistId, userId);
     } catch (err) {
       if (err instanceof NotFoundError) {
         throw err;
       }
       try {
-        await this._playlistsongsService.verifyPlaylistsongs(playlistId, id);
+        await this._collaborationsService.verifyCollaborator(playlistId, userId);
       } catch {
         throw err;
       }
@@ -57,7 +57,7 @@ class PlaylistsService {
 
   async getPlaylists(owner) {
     const query = {
-      text: 'SELECT playlists.id,playlists.name,users.username FROM playlists JOIN users ON playlists.owner=users.id WHERE playlists.owner = $1',
+      text: 'SELECT playlists.id,playlists.name,users.username FROM playlists JOIN users ON playlists.owner=users.id LEFT JOIN collaborations ON collaborations.playlist_id = playlists.id WHERE playlists.owner = $1 OR collaborations.user_id = $1',
       values: [owner],
     };
 
