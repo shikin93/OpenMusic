@@ -1,20 +1,26 @@
 class ExportsHandler {
-  constructor(service, validator) {
+  constructor(playlistsService, service, validator) {
+    this._playlistsService = playlistsService;
     this._service = service;
     this._validator = validator;
 
-    this.postExportSongsHandler = this.postExportSongsHandler.bind(this);
+    this.postExportPlaylistHandler = this.postExportPlaylistHandler.bind(this);
   }
 
-  async postExportSongsHandler(req, h) {
-    this._validator.validateExportSongsPayload(req.payload);
+  async postExportPlaylistHandler(req, h) {
+    this._validator.validateExportPlaylistPayload(req.payload);
+    const { playlistId } = req.params;
+    const { id: credentialId } = req.auth.credentials;
+
+    await this._playlistsService.verifyPlaylistAccess(playlistId, credentialId);
 
     const message = {
-      userId: req.auth.credentials.id,
+      playlistId,
+      userId: credentialId,
       targetEmail: req.payload.targetEmail,
     };
 
-    await this._service.sendMessage('export:songs', JSON.stringify(message));
+    await this._service.sendMessage('export:playlist', JSON.stringify(message));
     const res = h.response({
       status: 'success',
       message: 'Permintaan Anda dalam antrian',
