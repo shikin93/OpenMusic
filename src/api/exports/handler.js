@@ -23,7 +23,7 @@ class ExportsHandler {
     await this._service.sendMessage('export:playlist', JSON.stringify(message));
     const res = h.response({
       status: 'success',
-      message: 'Permintaan Anda dalam antrian',
+      message: 'Permintaan Anda sedang kami proses',
     });
     res.code(201);
     return res;
