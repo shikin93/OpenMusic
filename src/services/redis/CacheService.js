@@ -39,6 +39,18 @@ class CacheService {
       });
     });
   }
+
+  delete(key) {
+    return new Promise((resolve, reject) => {
+      this._client.del(key, (err, count) => {
+        if (err) {
+          return reject(err);
+        }
+
+        return resolve(count);
+      });
+    });
+  }
 }
 
 module.exports = CacheService;
