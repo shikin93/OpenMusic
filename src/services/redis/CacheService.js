@@ -1,4 +1,5 @@
 const redis = require('redis');
+const NotFoundError = require('../../exceptions/NotFoundError');
 
 class CacheService {
   constructor() {
@@ -19,6 +20,22 @@ class CacheService {
         }
 
         return resolve(ok);
+      });
+    });
+  }
+
+  get(key) {
+    return new Promise((resolve, reject) => {
+      this._client.get(key, (err, reply) => {
+        if (err) {
+          return reject(err);
+        }
+
+        if (reply == null) {
+          return reject(new NotFoundError('Cache tidak ditemukan'));
+        }
+
+        return resolve(reply.toString());
       });
     });
   }
