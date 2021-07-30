@@ -15,7 +15,6 @@ class ExportsHandler {
     await this._playlistsService.verifyPlaylistAccess(playlistId, credentialId);
 
     const message = {
-      playlistId,
       userId: credentialId,
       targetEmail: req.payload.targetEmail,
     };
