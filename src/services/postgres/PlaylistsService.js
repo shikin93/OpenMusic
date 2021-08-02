@@ -60,21 +60,21 @@ class PlaylistsService {
 
   async getPlaylists(owner) {
     try {
-      // mendapatakan playlists dari cache
+      // mendapatkan playlist dari cache
       const result = await this._cacheService.get(`playlists:${owner}`);
       return JSON.parse(result);
     } catch (err) {
-      // bila gagal, ambil dari database
+      // mendapatkan palylists dari database
       const query = {
         text: 'SELECT playlists.id,playlists.name,users.username FROM playlists JOIN users ON playlists.owner=users.id LEFT JOIN collaborations ON collaborations.playlist_id = playlists.id WHERE playlists.owner = $1 OR collaborations.user_id = $1',
         values: [owner],
       };
-      const result = await this._pool.query(query);
-      const mappedResult = result.rows;
 
-      // playlists akan disimpan pada cache sebelum fungsi getPlaylists dikembalikan
-      await this._cacheService.set(`playlists:${owner}`, JSON.stringify(mappedResult));
-      return mappedResult;
+      const result = await this._pool.query(query);
+
+      // menyimpan playlist pada cache sebelum fungsi getPlaylists
+      await this._cacheService.set(`playlists:${owner}`, JSON.stringify(result.rows));
+      return result.rows;
     }
   }
 

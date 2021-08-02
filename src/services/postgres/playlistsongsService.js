@@ -19,27 +19,28 @@ class PlaylistsongsService {
     if (!result.rowCount) {
       throw new InvariantError('Lagu gagal ditambahkan ke playlists, lagu tidak ditemukan');
     }
+
     await this._cacheService.delete(`playlistSongs:${playlistId}`);
     return result.rows[0].id;
   }
 
-  async getPlaylistsongs(owner) {
+  async getPlaylistsongs(playlistId) {
     try {
-      // mendapatakan playlistsongs dari cache
-      const result = await this._cacheService.get(`playlist:${owner}`);
+      // mendapatkan playlistsongs dari cache
+      const result = await this._cacheService.get(`playlistSongs:${playlistId}`);
       return JSON.parse(result);
     } catch (err) {
-      // bila gagal ambil dari database
+      // mendapatkan playlistsongs dari database
       const query = {
         text: 'SELECT music.id, music.title, music.performer FROM music LEFT JOIN playlistsongs ON playlistsongs.song_id = music.id LEFT JOIN playlists ON playlists.id = playlistsongs.playlist_id LEFT JOIN collaborations ON collaborations.playlist_id = playlists.id WHERE playlists.owner = $1 OR collaborations.user_id = $1',
-        values: [owner],
+        values: [playlistId],
       };
-      const result = await this._pool.query(query);
-      const mappedResult = result.rows;
 
-      // playlistsongs akan disimpan pada cache sebelum fungsi getPlaylistsongs dikembalikan
-      await this._cacheService.set(`playlistSongs:${owner}`, JSON.stringify(mappedResult));
-      return mappedResult;
+      const result = await this._pool.query(query);
+
+      // menyimpan playlistsongs pada cache sebelum memanggil fungsi getPlaylistsongs
+      await this._cacheService.set(`playlistSongs:${playlistId}`, JSON.stringify(result.rows));
+      return result.rows;
     }
   }
 
