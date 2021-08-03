@@ -24,7 +24,7 @@ class PlaylistsongsService {
     return result.rows[0].id;
   }
 
-  async getPlaylistsongs(playlistId) {
+  async getPlaylistsongs(owner, playlistId) {
     try {
       // mendapatkan playlistsongs dari cache
       const result = await this._cacheService.get(`playlistSongs:${playlistId}`);
@@ -33,7 +33,7 @@ class PlaylistsongsService {
       // mendapatkan playlistsongs dari database
       const query = {
         text: 'SELECT music.id, music.title, music.performer FROM music LEFT JOIN playlistsongs ON playlistsongs.song_id = music.id LEFT JOIN playlists ON playlists.id = playlistsongs.playlist_id LEFT JOIN collaborations ON collaborations.playlist_id = playlists.id WHERE playlists.owner = $1 OR collaborations.user_id = $1',
-        values: [playlistId],
+        values: [owner],
       };
 
       const result = await this._pool.query(query);
