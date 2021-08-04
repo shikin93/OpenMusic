@@ -78,7 +78,7 @@ class PlaylistsService {
     }
   }
 
-  async deletePlaylist(playlistId) {
+  async deletePlaylist(playlistId, owner) {
     const query = {
       text: 'DELETE FROM playlists WHERE id = $1 RETURNING id',
       values: [playlistId],
@@ -88,8 +88,6 @@ class PlaylistsService {
     if (!result.rowCount) {
       throw new InvariantError('Playlist gagal dihapus');
     }
-
-    const { owner } = result.rows[0];
     await this._cacheService.delete(`playlists:${owner}`);
   }
 }
